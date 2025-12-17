@@ -29,7 +29,7 @@ def format_play(play, teams):
 async def get_mets_game_pk(today: str = None):
     if not today:
         #today = date.today().isoformat()
-        today = "2025-09-19"
+        today = "2024-08-19"
 
     url = MLB_SCHEDULE_API.format(team_id=TEAM_ID, today=today)
     async with httpx.AsyncClient(timeout=10) as client:
