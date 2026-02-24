@@ -14,6 +14,8 @@ def format_play(play, teams):
     home_score = play["result"].get("homeScore", 0)
     return {
         "Game": {
+            "Home" : teams['home'],
+            "Away" : teams['away'],
             "Inning": {
                 "Half": play["about"].get("halfInning"),
                 "Inning#": play["about"].get("inning")
