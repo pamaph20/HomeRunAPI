@@ -22,6 +22,8 @@ def format_play(play, teams):
                 f"{teams['away']}": away_score,
                 f"{teams['home']}": home_score
             },
+            "runnerIndex" : play.get("runnerIndex",[0]) ,
+            "count" : play.get("count", {}),
             "Game event": play["result"].get("description", "")
         }
     }
