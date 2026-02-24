@@ -24,9 +24,9 @@ def format_play(play, teams):
                 f"{teams.get("away", {})}": away_score,
                 f"{teams.get("home", {})}": home_score
             },
-            "First" : play.get("postOnFirst", {}),
-            "Second" : play.get("postOnSecond", {}),
-            "Third" : play.get("postOnThird", {}),
+            "First" : play["matchup"].get("postOnFirst", {}),
+            "Second" : play["matchup"].get("postOnSecond", {}),
+            "Third" : play["matchup"].get("postOnThird", {}),
             "count" : play.get("count", {}),
             "Game event": play["result"].get("description", "")
         }
