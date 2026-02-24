@@ -8,34 +8,42 @@ TEAM_ID = 121  # Mets
 MLB_SCHEDULE_API = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId={team_id}&date={today}"
 MLB_LIVE_FEED = "https://statsapi.mlb.com/api/v1.1/game/{gamePk}/feed/live"
 
-def format_play(play, teams):
+def format_play(play, teams, gameData):
     
     away_score = play["result"].get("awayScore", 0)
     home_score = play["result"].get("homeScore", 0)
+    team_batting = teams['home'] if play["about"].get("halfInning") == "bottom" else teams['away']
+    
     return {
+        
         "Game": {
-            "Home" : teams.get("home", {}),
-            "Away" : teams.get("away", {}),
+            "datetime" : gameData,
+            "Home" : teams['home'],
+            "Away" : teams['away'],
             "Inning": {
                 "Half": play["about"].get("halfInning"),
                 "Inning#": play["about"].get("inning")
             },
             "Score": {
-                f"{teams.get("away", {})}": away_score,
-                f"{teams.get("home", {})}": home_score
+                f"{teams['away']}": away_score,
+                f"{teams['home']}": home_score
             },
+            
             "First" : play["matchup"].get("postOnFirst", {}),
             "Second" : play["matchup"].get("postOnSecond", {}),
             "Third" : play["matchup"].get("postOnThird", {}),
-            "count" : play.get("count", {}),
-            "Game event": play["result"].get("description", "")
+            "Game event": play["result"].get("description", ""),
+            "MetsHomeRun": (
+                team_batting == "New York Mets"
+                and play["result"].get("event", "") == "Home Run"
+            )
         }
     }
 
 async def get_mets_game_pk(today: str = None):
     if not today:
         today = date.today().isoformat()
-        #today = "2024-08-19"
+        
 
     url = MLB_SCHEDULE_API.format(team_id=TEAM_ID, today=today)
     async with httpx.AsyncClient(timeout=10) as client:
@@ -52,6 +60,7 @@ async def get_mets_game_pk(today: str = None):
 @app.get("/formatted/game/today")
 async def get_latest_completed_play_today():
     game_pk = await get_mets_game_pk()
+    print(game_pk)
     if not game_pk:
         return {"message": "No Mets game today"}
 
@@ -63,17 +72,18 @@ async def get_latest_completed_play_today():
     data = r.json()
 
     teams_data = data.get("gameData", {}).get("teams", {})
+    game_data = data.get("gameData", {}).get("datetime", {})
     teams = {
         "home": teams_data.get("home", {}).get("name", "Unknown Home"),
         "away": teams_data.get("away", {}).get("name", "Unknown Away"),
     }
-
+    
     all_plays = data.get("liveData", {}).get("plays", {}).get("allPlays", [])
     if not all_plays:
         return {"message": "No play data yet"}
 
     for play in reversed(all_plays):
         if play.get("result") and play.get("about", {}).get("isComplete"):
-            return format_play(play, teams)
+            return format_play(play, teams, game_data)
 
     return {"message": "No completed at-bats yet"}
