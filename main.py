@@ -9,20 +9,20 @@ MLB_SCHEDULE_API = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId={t
 MLB_LIVE_FEED = "https://statsapi.mlb.com/api/v1.1/game/{gamePk}/feed/live"
 
 def format_play(play, teams):
-    # your existing formatting logic
+    
     away_score = play["result"].get("awayScore", 0)
     home_score = play["result"].get("homeScore", 0)
     return {
         "Game": {
-            "Home" : teams['home'],
-            "Away" : teams['away'],
+            "Home" : teams.get("home", {}),
+            "Away" : teams.get("away", {}),
             "Inning": {
                 "Half": play["about"].get("halfInning"),
                 "Inning#": play["about"].get("inning")
             },
             "Score": {
-                f"{teams['away']}": away_score,
-                f"{teams['home']}": home_score
+                f"{teams.get("away", {})}": away_score,
+                f"{teams.get("home", {})}": home_score
             },
             "First" : play.get("postOnFirst", {}),
             "Second" : play.get("postOnSecond", {}),
