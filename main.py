@@ -86,4 +86,4 @@ async def get_latest_completed_play_today():
         if play.get("result") and play.get("about", {}).get("isComplete"):
             return format_play(play, teams, game_data)
 
-    return {"message": "No completed at-bats yet"}
+    return {"message": "No completed at-bats yet", "gameTime" : game_data, "teams" : teams}
