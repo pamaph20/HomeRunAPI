@@ -15,7 +15,7 @@ def format_play(play, teams, gameData):
     team_batting = teams['home'] if play["about"].get("halfInning") == "bottom" else teams['away']
     
     return {
-        
+        #All Necessary information for scorebug on screen
         "Game": {
             "datetime" : gameData,
             "Home" : teams['home'],
@@ -85,5 +85,5 @@ async def get_latest_completed_play_today():
     for play in reversed(all_plays):
         if play.get("result") and play.get("about", {}).get("isComplete"):
             return format_play(play, teams, game_data)
-
+    #Give basic information prior to game start for the ardunio to set its sleep schedual 
     return {"message": "No completed at-bats yet", "gameTime" : game_data, "teams" : teams}
